@@ -119,7 +119,20 @@ class POSUI:
             print(f"  - {item}")
         print(f"总计: ¥{self.current_sale.get_total():.2f}")
         
-        payment_method = input("\n请输入支付方式 (现金/刷卡/移动支付): ").strip() or "现金"
+        valid_methods = {"现金", "刷卡", "移动支付"}
+
+        while True:
+            payment_method = input("\n请输入支付方式 (现金/刷卡/移动支付): ").strip()
+
+            if payment_method == "":
+                payment_method = "现金"
+                break
+
+            if payment_method in valid_methods:
+                break
+            else:
+                print("支付方式无效，请重新输入！")
+        
         try:
             payment_amount = float(input("请输入支付金额: ").strip())
         except ValueError:
