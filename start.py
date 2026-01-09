@@ -1,62 +1,61 @@
 """
-POS系统启动脚本
-允许用户选择启动CLI或GUI版本
+POS System Startup Script
+Allows user to choose between CLI or GUI version
 """
 
 import sys
 
 
 def show_menu():
-    """显示启动菜单"""
+    """Display startup menu"""
     print("=" * 50)
-    print("          超市收银系统 (POS System)")
+    print("          Point of Sale System (POS)")
     print("=" * 50)
-    print("请选择启动方式：")
-    print("1. 图形界面 (GUI) - 推荐")
-    print("2. 命令行界面 (CLI)")
-    print("0. 退出")
+    print("Please select startup mode:")
+    print("1. Graphical Interface (GUI) - Recommended")
+    print("2. Command Line Interface (CLI)")
+    print("0. Exit")
     print("=" * 50)
 
 
 def main():
-    """主函数"""
+    """Main function"""
     while True:
         show_menu()
-        choice = input("请输入选项 (0-2): ").strip()
+        choice = input("Please enter option (0-2): ").strip()
         
         if choice == "1":
-            print("\n正在启动图形界面...")
+            print("\nStarting graphical interface...")
             try:
                 from main_gui import main
                 main()
                 break
             except ImportError as e:
-                print(f"错误: 无法导入GUI模块 - {e}")
-                print("请确保已安装Tkinter")
-                input("\n按回车键继续...")
+                print(f"Error: Cannot import GUI module - {e}")
+                print("Please ensure Tkinter is installed")
+                input("\nPress Enter to continue...")
             except Exception as e:
-                print(f"错误: {e}")
-                input("\n按回车键继续...")
+                print(f"Error: {e}")
+                input("\nPress Enter to continue...")
         
         elif choice == "2":
-            print("\n正在启动命令行界面...")
+            print("\nStarting command line interface...")
             try:
                 from main import main
                 main()
                 break
             except Exception as e:
-                print(f"错误: {e}")
-                input("\n按回车键继续...")
+                print(f"Error: {e}")
+                input("\nPress Enter to continue...")
         
         elif choice == "0":
-            print("\n再见！")
+            print("\nGoodbye!")
             sys.exit(0)
         
         else:
-            print("\n无效的选择，请重试")
-            input("按回车键继续...")
+            print("\nInvalid choice, please try again")
+            input("Press Enter to continue...")
 
 
 if __name__ == "__main__":
     main()
-

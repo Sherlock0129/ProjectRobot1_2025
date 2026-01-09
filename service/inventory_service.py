@@ -1,5 +1,5 @@
 """
-库存管理服务
+Inventory Management Service
 """
 
 from typing import Dict, Optional
@@ -7,65 +7,65 @@ from domain.product import Product
 
 
 class InventoryService:
-    """库存管理服务类"""
+    """Inventory management service class"""
     
     def __init__(self):
-        """初始化库存服务"""
+        """Initialize inventory service"""
         self.products: Dict[str, Product] = {}
         self._initialize_sample_products()
     
     def _initialize_sample_products(self):
-        """初始化示例商品"""
+        """Initialize sample products"""
         sample_products = [
-            Product("P001", "苹果", 5.50, 100),
-            Product("P002", "香蕉", 3.80, 80),
-            Product("P003", "牛奶", 12.00, 50),
-            Product("P004", "面包", 8.50, 60),
-            Product("P005", "鸡蛋", 15.00, 40),
+            Product("P001", "Apple", 5.50, 100),
+            Product("P002", "Banana", 3.80, 80),
+            Product("P003", "Milk", 12.00, 50),
+            Product("P004", "Bread", 8.50, 60),
+            Product("P005", "Egg", 15.00, 40),
         ]
         for product in sample_products:
             self.products[product.product_id] = product
     
     def get_product(self, product_id: str) -> Optional[Product]:
         """
-        根据ID获取产品
+        Get product by ID
         
         Args:
-            product_id: 产品ID
+            product_id: Product ID
             
         Returns:
-            Product: 产品对象，如果不存在则返回None
+            Product: Product object, or None if not found
         """
         return self.products.get(product_id)
     
     def get_all_products(self) -> list[Product]:
         """
-        获取所有产品
+        Get all products
         
         Returns:
-            list: 所有产品列表
+            list: List of all products
         """
         return list(self.products.values())
     
     def add_product(self, product: Product):
         """
-        添加产品
+        Add product
         
         Args:
-            product: 产品对象
+            product: Product object
         """
         self.products[product.product_id] = product
     
     def update_stock(self, product_id: str, quantity: int) -> bool:
         """
-        更新库存（减少）
+        Update stock (decrease)
         
         Args:
-            product_id: 产品ID
-            quantity: 数量（正数表示减少，负数表示增加）
+            product_id: Product ID
+            quantity: Quantity (positive to decrease, negative to increase)
             
         Returns:
-            bool: 是否成功更新
+            bool: Whether update was successful
         """
         product = self.get_product(product_id)
         if product:
@@ -78,13 +78,12 @@ class InventoryService:
     
     def restore_stock(self, product_id: str, quantity: int):
         """
-        恢复库存（增加）
+        Restore stock (increase)
         
         Args:
-            product_id: 产品ID
-            quantity: 恢复的数量
+            product_id: Product ID
+            quantity: Quantity to restore
         """
         product = self.get_product(product_id)
         if product:
             product.increase_stock(quantity)
-

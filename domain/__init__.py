@@ -1,4 +1,3 @@
 """
-领域模型层 - 包含所有实体类
+Domain Model Layer - Contains all entity classes
 """
-

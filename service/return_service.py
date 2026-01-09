@@ -1,5 +1,5 @@
 """
-退货服务
+Return Service
 """
 
 from typing import List, Optional
@@ -10,15 +10,15 @@ from service.sale_service import SaleService
 
 
 class ReturnService:
-    """退货服务类"""
+    """Return service class"""
     
     def __init__(self, inventory_service: InventoryService, sale_service: SaleService):
         """
-        初始化退货服务
+        Initialize return service
         
         Args:
-            inventory_service: 库存服务对象
-            sale_service: 销售服务对象
+            inventory_service: Inventory service object
+            sale_service: Sale service object
         """
         self.inventory_service = inventory_service
         self.sale_service = sale_service
@@ -26,28 +26,28 @@ class ReturnService:
     
     def create_return(self, original_sale_id: str = None) -> ReturnTransaction:
         """
-        创建新的退货交易
+        Create new return transaction
         
         Args:
-            original_sale_id: 原始销售单ID
+            original_sale_id: Original sale ID
             
         Returns:
-            ReturnTransaction: 新的退货交易对象
+            ReturnTransaction: New return transaction object
         """
         return ReturnTransaction(original_sale_id=original_sale_id)
     
     def add_item_to_return(self, return_transaction: ReturnTransaction, 
                           product_id: str, quantity: int) -> bool:
         """
-        向退货交易中添加商品
+        Add item to return transaction
         
         Args:
-            return_transaction: 退货交易对象
-            product_id: 产品ID
-            quantity: 数量
+            return_transaction: Return transaction object
+            product_id: Product ID
+            quantity: Quantity
             
         Returns:
-            bool: 是否成功添加
+            bool: Whether addition was successful
         """
         product = self.inventory_service.get_product(product_id)
         if not product:
@@ -59,18 +59,18 @@ class ReturnService:
     
     def complete_return(self, return_transaction: ReturnTransaction) -> bool:
         """
-        完成退货
+        Complete return
         
         Args:
-            return_transaction: 退货交易对象
+            return_transaction: Return transaction object
             
         Returns:
-            bool: 是否成功完成
+            bool: Whether completion was successful
         """
         if not return_transaction.items:
             return False
         
-        # 恢复库存
+        # Restore stock
         for item in return_transaction.items:
             self.inventory_service.restore_stock(item.product.product_id, item.quantity)
         
@@ -80,25 +80,24 @@ class ReturnService:
     
     def get_return_history(self) -> List[ReturnTransaction]:
         """
-        获取退货历史
+        Get return history
         
         Returns:
-            List: 退货历史列表
+            List: List of return history
         """
         return self.return_history.copy()
     
     def find_sale_by_id(self, sale_id: str) -> Optional:
         """
-        根据ID查找销售单
+        Find sale by ID
         
         Args:
-            sale_id: 销售单ID
+            sale_id: Sale ID
             
         Returns:
-            Sale: 销售单对象，如果不存在则返回None
+            Sale: Sale object, or None if not found
         """
         for sale in self.sale_service.get_sales_history():
             if sale.sale_id == sale_id:
                 return sale
         return None
-

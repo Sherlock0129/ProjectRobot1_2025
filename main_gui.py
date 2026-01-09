@@ -1,5 +1,5 @@
 """
-POS系统主程序入口 - GUI版本
+POS System Main Entry Point - GUI Version
 """
 
 from service.inventory_service import InventoryService
@@ -9,19 +9,18 @@ from ui.pos_gui import POSGUI
 
 
 def main():
-    """主函数"""
-    # 初始化服务层
+    """Main function"""
+    # Initialize service layer
     inventory_service = InventoryService()
     sale_service = SaleService(inventory_service)
     return_service = ReturnService(inventory_service, sale_service)
     
-    # 初始化GUI
+    # Initialize GUI
     app = POSGUI(sale_service, return_service, inventory_service)
     
-    # 运行系统
+    # Run system
     app.run()
 
 
 if __name__ == "__main__":
     main()
-
