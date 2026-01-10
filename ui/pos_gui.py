@@ -112,6 +112,13 @@ class POSGUI:
                                relief=tk.RAISED, bd=3)
         btn_history.grid(row=0, column=3, padx=15, pady=10)
         
+        btn_exit = tk.Button(button_frame, text="Exit System",
+                            font=('Microsoft YaHei', 12, 'bold'),
+                            bg='#7f8c8d', fg='white', width=btn_width, height=btn_height,
+                            command=self.exit_system, cursor='hand2',
+                            relief=tk.RAISED, bd=3)
+        btn_exit.grid(row=1, column=0, padx=15, pady=20)
+        
         # Status bar
         status_frame = tk.Frame(self.root, bg='#34495e', height=40)
         status_frame.pack(fill=tk.X, side=tk.BOTTOM)
@@ -467,7 +474,7 @@ class POSGUI:
                     f"${return_item.product.price:.2f}",
                     f"${return_item.get_subtotal():.2f}"
                 ))
-        
+              
         def update_total():
             """Update total refund"""
             total = self.current_return.get_total_refund()
@@ -642,6 +649,11 @@ class POSGUI:
         """Update status bar"""
         self.status_label.config(text=message)
         self.root.after(3000, lambda: self.status_label.config(text="Ready"))
+    
+    def exit_system(self):
+        """Exit POS system"""
+        if messagebox.askyesno("Exit", "Are you sure you want to exit the system?"):
+            self.root.destroy()
     
     def run(self):
         """Run GUI"""
