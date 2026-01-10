@@ -1,36 +1,35 @@
 """
-销售项实体类
+Sale Item Entity Class
 """
 
 from domain.product import Product
 
 
 class SaleItem:
-    """销售项类，表示一次销售中的单个商品项"""
+    """Sale item class representing a single product item in a sale"""
     
     def __init__(self, product: Product, quantity: int):
         """
-        初始化销售项
+        Initialize sale item
         
         Args:
-            product: 产品对象
-            quantity: 购买数量
+            product: Product object
+            quantity: Purchase quantity
         """
         self.product = product
         self.quantity = quantity
     
     def get_subtotal(self) -> float:
         """
-        计算小计
+        Calculate subtotal
         
         Returns:
-            float: 小计金额
+            float: Subtotal amount
         """
         return self.product.price * self.quantity
     
     def __str__(self):
-        return f"{self.product.name} x{self.quantity} = ¥{self.get_subtotal():.2f}"
+        return f"{self.product.name} x{self.quantity} = ${self.get_subtotal():.2f}"
     
     def __repr__(self):
         return f"SaleItem(product={self.product}, quantity={self.quantity})"
-

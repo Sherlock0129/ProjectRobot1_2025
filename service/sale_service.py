@@ -1,5 +1,5 @@
 """
-销售服务
+Sale Service
 """
 
 from typing import List
@@ -10,38 +10,38 @@ from service.inventory_service import InventoryService
 
 
 class SaleService:
-    """销售服务类"""
+    """Sale service class"""
     
     def __init__(self, inventory_service: InventoryService):
         """
-        初始化销售服务
+        Initialize sale service
         
         Args:
-            inventory_service: 库存服务对象
+            inventory_service: Inventory service object
         """
         self.inventory_service = inventory_service
         self.sales_history: List[Sale] = []
     
     def create_sale(self) -> Sale:
         """
-        创建新的销售
+        Create new sale
         
         Returns:
-            Sale: 新的销售对象
+            Sale: New sale object
         """
         return Sale()
     
     def add_item_to_sale(self, sale: Sale, product_id: str, quantity: int) -> bool:
         """
-        向销售中添加商品
+        Add item to sale
         
         Args:
-            sale: 销售对象
-            product_id: 产品ID
-            quantity: 数量
+            sale: Sale object
+            product_id: Product ID
+            quantity: Quantity
             
         Returns:
-            bool: 是否成功添加
+            bool: Whether addition was successful
         """
         product = self.inventory_service.get_product(product_id)
         if not product:
@@ -56,15 +56,15 @@ class SaleService:
     
     def complete_sale(self, sale: Sale, payment_method: str, payment_amount: float) -> bool:
         """
-        完成销售
+        Complete sale
         
         Args:
-            sale: 销售对象
-            payment_method: 支付方式
-            payment_amount: 支付金额
+            sale: Sale object
+            payment_method: Payment method
+            payment_amount: Payment amount
             
         Returns:
-            bool: 是否成功完成
+            bool: Whether completion was successful
         """
         total = sale.get_total()
         if payment_amount < total:
@@ -76,20 +76,19 @@ class SaleService:
     
     def cancel_sale(self, sale: Sale):
         """
-        取消销售（恢复库存）
+        Cancel sale (restore stock)
         
         Args:
-            sale: 销售对象
+            sale: Sale object
         """
         for item in sale.items:
             self.inventory_service.restore_stock(item.product.product_id, item.quantity)
     
     def get_sales_history(self) -> List[Sale]:
         """
-        获取销售历史
+        Get sales history
         
         Returns:
-            List: 销售历史列表
+            List: List of sales history
         """
         return self.sales_history.copy()
-

@@ -1,11 +1,11 @@
 """
-POS System Main Entry Point - CLI Version
+POS System Main Entry Point - GUI Version
 """
 
 from service.inventory_service import InventoryService
 from service.sale_service import SaleService
 from service.return_service import ReturnService
-from ui.pos_ui import POSUI
+from ui.pos_gui import POSGUI
 
 
 def main():
@@ -15,11 +15,11 @@ def main():
     sale_service = SaleService(inventory_service)
     return_service = ReturnService(inventory_service, sale_service)
     
-    # Initialize UI layer
-    ui = POSUI(sale_service, return_service, inventory_service)
+    # Initialize GUI
+    app = POSGUI(sale_service, return_service, inventory_service)
     
     # Run system
-    ui.run()
+    app.run()
 
 
 if __name__ == "__main__":

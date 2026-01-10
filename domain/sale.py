@@ -1,5 +1,5 @@
 """
-销售实体类
+Sale Entity Class
 """
 
 from datetime import datetime
@@ -8,14 +8,14 @@ from domain.sale_item import SaleItem
 
 
 class Sale:
-    """销售类，表示一次完整的销售交易"""
+    """Sale class representing a complete sales transaction"""
     
     def __init__(self, sale_id: str = None):
         """
-        初始化销售
+        Initialize sale
         
         Args:
-            sale_id: 销售ID，如果为None则自动生成
+            sale_id: Sale ID, if None will be auto-generated
         """
         self.sale_id = sale_id or f"SALE-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         self.items: List[SaleItem] = []
@@ -26,29 +26,29 @@ class Sale:
     
     def add_item(self, item: SaleItem):
         """
-        添加销售项
+        Add sale item
         
         Args:
-            item: 销售项对象
+            item: Sale item object
         """
         self.items.append(item)
     
     def get_total(self) -> float:
         """
-        计算总金额
+        Calculate total amount
         
         Returns:
-            float: 总金额
+            float: Total amount
         """
         return sum(item.get_subtotal() for item in self.items)
     
     def complete_sale(self, payment_method: str, payment_amount: float):
         """
-        完成销售
+        Complete sale
         
         Args:
-            payment_method: 支付方式
-            payment_amount: 支付金额
+            payment_method: Payment method
+            payment_amount: Payment amount
         """
         self.payment_method = payment_method
         self.payment_amount = payment_amount
@@ -56,10 +56,10 @@ class Sale:
     
     def get_change(self) -> float:
         """
-        计算找零
+        Calculate change
         
         Returns:
-            float: 找零金额
+            float: Change amount
         """
         if self.is_completed:
             return self.payment_amount - self.get_total()
@@ -67,9 +67,8 @@ class Sale:
     
     def __str__(self):
         items_str = "\n".join(f"  - {item}" for item in self.items)
-        status = "已完成" if self.is_completed else "进行中"
-        return f"销售单 {self.sale_id} ({status})\n{items_str}\n总计: ¥{self.get_total():.2f}"
+        status = "Completed" if self.is_completed else "In Progress"
+        return f"Sale {self.sale_id} ({status})\n{items_str}\nTotal: ${self.get_total():.2f}"
     
     def __repr__(self):
         return f"Sale(sale_id='{self.sale_id}', items={len(self.items)}, total={self.get_total()})"
-
