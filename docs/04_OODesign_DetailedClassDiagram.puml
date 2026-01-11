@@ -1,0 +1,201 @@
+@startuml OO Design Detailed Class Diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 9
+skinparam backgroundColor #FFFFFF
+
+title Object-Oriented Design - Detailed Class Diagram
+
+package "Domain Layer" {
+  
+  abstract class Transaction {
+    - transaction_id : String
+    - items : List<SaleItem>
+    - transaction_time : DateTime
+    - is_completed : Boolean
+    --
+    + __init__(transaction_id: String = None)
+    + add_item(item: SaleItem) : void
+    + get_item_count() : int
+    + is_empty() : Boolean
+    + {abstract} _generate_id() : String
+    + {abstract} get_total_amount() : float
+    + {abstract} complete(*args, **kwargs) : void
+    + {abstract} get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class Sale {
+    - payment_method : String
+    - payment_amount : float
+    - sale_id : String
+    --
+    + __init__(sale_id: String = None)
+    + _generate_id() : String
+    + get_total_amount() : float
+    + get_total() : float
+    + complete(payment_method: String, payment_amount: float) : void
+    + complete_sale(payment_method: String, payment_amount: float) : void
+    + get_change() : float
+    + get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class ReturnTransaction {
+    - original_sale_id : String
+    - return_id : String
+    --
+    + __init__(return_id: String = None, original_sale_id: String = None)
+    + _generate_id() : String
+    + get_total_amount() : float
+    + get_total_refund() : float
+    + complete() : void
+    + complete_return() : void
+    + get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class Product {
+    - product_id : String
+    - name : String
+    - price : float
+    - stock : int
+    --
+    + __init__(product_id: String, name: String, price: float, stock: int = 0)
+    + reduce_stock(quantity: int) : Boolean
+    + increase_stock(quantity: int) : void
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class SaleItem {
+    - product : Product
+    - quantity : int
+    --
+    + __init__(product: Product, quantity: int)
+    + get_subtotal() : float
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  Transaction <|-- Sale
+  Transaction <|-- ReturnTransaction
+  Transaction "1" *-- "0..*" SaleItem
+  SaleItem "1" --> "1" Product
+}
+
+package "Service Layer" {
+  
+  class InventoryService {
+    - products : Dict<String, Product>
+    --
+    + __init__()
+    + get_product(product_id: String) : Product
+    + get_all_products() : List<Product>
+    + add_product(product: Product) : void
+    + update_stock(product_id: String, quantity: int) : Boolean
+    + restore_stock(product_id: String, quantity: int) : void
+    - _initialize_sample_products() : void
+  }
+  
+  class SaleService {
+    - inventory_service : InventoryService
+    - sales_history : List<Sale>
+    --
+    + __init__(inventory_service: InventoryService)
+    + create_sale() : Sale
+    + add_item_to_sale(sale: Sale, product_id: String, quantity: int) : Boolean
+    + complete_sale(sale: Sale, payment_method: String, payment_amount: float) : Boolean
+    + cancel_sale(sale: Sale) : void
+    + get_sales_history() : List<Sale>
+  }
+  
+  class ReturnService {
+    - inventory_service : InventoryService
+    - sale_service : SaleService
+    - return_history : List<ReturnTransaction>
+    --
+    + __init__(inventory_service: InventoryService, sale_service: SaleService)
+    + create_return(original_sale_id: String) : ReturnTransaction
+    + add_item_to_return(return_transaction: ReturnTransaction, product_id: String, quantity: int) : Boolean
+    + complete_return(return_transaction: ReturnTransaction) : Boolean
+    + get_return_history() : List<ReturnTransaction>
+    + find_sale_by_id(sale_id: String) : Sale
+  }
+  
+  SaleService --> InventoryService : uses
+  SaleService ..> Sale : creates
+  SaleService ..> SaleItem : creates
+  ReturnService --> InventoryService : uses
+  ReturnService --> SaleService : uses
+  ReturnService ..> ReturnTransaction : creates
+  ReturnService ..> SaleItem : creates
+  InventoryService ..> Product : manages
+}
+
+package "UI Layer" {
+  
+  class POSUI {
+    - sale_service : SaleService
+    - return_service : ReturnService
+    - inventory_service : InventoryService
+    - current_sale : Sale
+    - current_return : ReturnTransaction
+    --
+    + __init__(sale_service: SaleService, return_service: ReturnService, inventory_service: InventoryService)
+    + run() : void
+    + process_sale() : void
+    + handle_return() : void
+    + view_products() : void
+    + view_sales_history() : void
+    + view_return_history() : void
+    - _display_menu() : void
+  }
+  
+  class POSGUI {
+    - sale_service : SaleService
+    - return_service : ReturnService
+    - inventory_service : InventoryService
+    - current_sale : Sale
+    - current_return : ReturnTransaction
+    - root : Tk
+    --
+    + __init__(sale_service: SaleService, return_service: ReturnService, inventory_service: InventoryService)
+    + run() : void
+    + show_sale_window() : void
+    + show_return_window() : void
+    + show_products_window() : void
+    + show_history_window() : void
+    - update_status(message: String) : void
+  }
+  
+  POSUI --> SaleService : uses
+  POSUI --> ReturnService : uses
+  POSUI --> InventoryService : uses
+  POSGUI --> SaleService : uses
+  POSGUI --> ReturnService : uses
+  POSGUI --> InventoryService : uses
+}
+
+note right of Transaction
+  <b>Abstract Base Class</b>
+  Defines common interface
+  Demonstrates inheritance and polymorphism
+end note
+
+note right of SaleService
+  <b>Service Class</b>
+  Handles sale business logic
+  Coordinates domain model objects
+end note
+
+note right of ReturnService
+  <b>Service Class</b>
+  Handles return business logic
+  Coordinates domain model objects
+end note
+
+@enduml

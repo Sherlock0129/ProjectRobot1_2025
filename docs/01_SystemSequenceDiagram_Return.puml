@@ -1,0 +1,105 @@
+@startuml System Sequence Diagram - Handle Returns
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title System Sequence Diagram - Handle Returns
+
+actor "Cashier" as Cashier
+boundary "POS System" as System
+control "ReturnService" as ReturnService
+control "InventoryService" as InventoryService
+entity "ReturnTransaction" as ReturnTransaction
+entity "Product" as Product
+
+== Create Return Transaction ==
+Cashier -> System: select "Handle Returns"
+activate System
+Cashier -> System: enter original sale ID (optional)
+System -> ReturnService: create_return(original_sale_id)
+activate ReturnService
+ReturnService -> ReturnTransaction: new ReturnTransaction(original_sale_id)
+activate ReturnTransaction
+ReturnTransaction --> ReturnService: return_transaction object
+deactivate ReturnTransaction
+ReturnService --> System: return return_transaction object
+deactivate ReturnService
+System --> Cashier: display "Return transaction created"
+
+== Add Items to Return Transaction ==
+loop Add return items
+  Cashier -> System: enter product_id and quantity
+  System -> ReturnService: add_item_to_return(return_transaction, product_id, quantity)
+  activate ReturnService
+  ReturnService -> InventoryService: get_product(product_id)
+  activate InventoryService
+  InventoryService -> Product: find product
+  activate Product
+  Product --> InventoryService: return Product object
+  deactivate Product
+  InventoryService --> ReturnService: return Product object
+  deactivate InventoryService
+  
+  alt Product exists
+    ReturnService -> ReturnTransaction: add_item(SaleItem)
+    activate ReturnTransaction
+    ReturnTransaction --> ReturnService: success
+    deactivate ReturnTransaction
+    ReturnService --> System: return true
+    deactivate ReturnService
+    System -> ReturnTransaction: get_total_refund()
+    activate ReturnTransaction
+    ReturnTransaction --> System: return total refund amount
+    deactivate ReturnTransaction
+    System --> Cashier: display "Item added" and current refund total
+  else Product not found
+    ReturnService --> System: return false
+    deactivate ReturnService
+    System --> Cashier: display error message
+  end
+end
+
+== Complete Return ==
+Cashier -> System: select "Complete Return"
+System -> ReturnService: complete_return(return_transaction)
+activate ReturnService
+
+alt Return transaction not empty
+  loop Restore stock for each item
+    ReturnService -> ReturnTransaction: get items list
+    activate ReturnTransaction
+    ReturnTransaction --> ReturnService: return items list
+    deactivate ReturnTransaction
+    ReturnService -> InventoryService: restore_stock(product_id, quantity)
+    activate InventoryService
+    InventoryService -> Product: increase_stock(quantity)
+    activate Product
+    Product --> InventoryService: completed
+    deactivate Product
+    InventoryService --> ReturnService: completed
+    deactivate InventoryService
+  end
+  
+  ReturnService -> ReturnTransaction: complete_return()
+  activate ReturnTransaction
+  ReturnTransaction --> ReturnService: completed
+  deactivate ReturnTransaction
+  ReturnService -> ReturnService: save to return_history
+  ReturnService --> System: return true
+  deactivate ReturnService
+  
+  System -> ReturnTransaction: get_total_refund()
+  activate ReturnTransaction
+  ReturnTransaction --> System: return total refund amount
+  deactivate ReturnTransaction
+  System --> Cashier: display "Return completed" and refund total
+else Return transaction empty
+  ReturnService --> System: return false
+  deactivate ReturnService
+  System --> Cashier: display "Return transaction is empty"
+end
+
+deactivate System
+
+@enduml

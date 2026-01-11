@@ -1,0 +1,66 @@
+@startuml Three-Layer Architecture
+!theme plain
+skinparam packageStyle rectangle
+skinparam packageFontSize 14
+skinparam backgroundColor #FFFFFF
+
+title POS System Three-Layer Architecture
+
+package "UI Layer" as UILayer #LightBlue {
+  note right
+    <b>Responsibilities:</b>
+    - User interaction
+    - Input validation
+    - Data display
+    - Call service layer
+    
+    <b>Modules:</b>
+    - POSUI (CLI)
+    - POSGUI (GUI)
+  end note
+}
+
+package "Service Layer" as ServiceLayer #LightGreen {
+  note right
+    <b>Responsibilities:</b>
+    - Business rule processing
+    - Process control
+    - Transaction management
+    - Coordinate domain models
+    
+    <b>Modules:</b>
+    - InventoryService
+    - SaleService
+    - ReturnService
+  end note
+}
+
+package "Domain Layer" as DomainLayer #LightYellow {
+  note right
+    <b>Responsibilities:</b>
+    - Business entity definition
+    - Business concept modeling
+    - Data encapsulation
+    - Business rule expression
+    
+    <b>Modules:</b>
+    - Transaction (abstract)
+    - Sale
+    - ReturnTransaction
+    - Product
+    - SaleItem
+  end note
+}
+
+UILayer --> ServiceLayer : calls
+ServiceLayer --> DomainLayer : uses
+
+note bottom
+  <b>Layered Architecture Principles:</b>
+  1. Upper layers can depend on lower layers
+  2. Lower layers cannot depend on upper layers
+  3. Layers at the same level can have dependencies
+  4. Each layer focuses only on its own responsibilities
+end note
+
+@enduml

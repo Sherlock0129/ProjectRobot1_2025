@@ -1,0 +1,123 @@
+@startuml Logical Architecture Package Diagram
+!theme plain
+skinparam packageStyle rectangle
+skinparam packageFontSize 12
+skinparam backgroundColor #FFFFFF
+
+title POS System Logical Architecture - Package Diagram
+
+package "UI Layer" as UI {
+  package "CLI Interface" as UICLI {
+    class POSUI
+    note right of POSUI
+      Command Line User Interface
+      Provides text menu interaction
+    end note
+  }
+  
+  package "GUI Interface" as UIGUI {
+    class POSGUI
+    note right of POSGUI
+      Graphical User Interface
+      Implemented with Tkinter
+    end note
+  }
+}
+
+package "Service Layer" as Service {
+  class InventoryService {
+    - products : Dict<String, Product>
+    + get_product(product_id: String) : Product
+    + get_all_products() : List<Product>
+    + add_product(product: Product) : void
+    + update_stock(product_id: String, quantity: int) : Boolean
+    + restore_stock(product_id: String, quantity: int) : void
+    - _initialize_sample_products() : void
+  }
+  
+  class SaleService {
+    - inventory_service : InventoryService
+    - sales_history : List<Sale>
+    + create_sale() : Sale
+    + add_item_to_sale(sale: Sale, product_id: String, quantity: int) : Boolean
+    + complete_sale(sale: Sale, payment_method: String, payment_amount: float) : Boolean
+    + cancel_sale(sale: Sale) : void
+    + get_sales_history() : List<Sale>
+  }
+  
+  class ReturnService {
+    - inventory_service : InventoryService
+    - sale_service : SaleService
+    - return_history : List<ReturnTransaction>
+    + create_return(original_sale_id: String) : ReturnTransaction
+    + add_item_to_return(return_transaction: ReturnTransaction, product_id: String, quantity: int) : Boolean
+    + complete_return(return_transaction: ReturnTransaction) : Boolean
+    + get_return_history() : List<ReturnTransaction>
+    + find_sale_by_id(sale_id: String) : Sale
+  }
+}
+
+package "Domain Layer" as Domain {
+  package "Entity Classes" as Entities {
+    abstract class Transaction
+    class Sale
+    class ReturnTransaction
+    class Product
+    class SaleItem
+  }
+}
+
+package "Main" as Main {
+  class main
+  class main_gui
+  class start
+}
+
+' Dependency relationships
+UI ..> Service : uses
+Service ..> Domain : uses
+
+UICLI --> InventoryService : depends on
+UICLI --> SaleService : depends on
+UICLI --> ReturnService : depends on
+
+UIGUI --> InventoryService : depends on
+UIGUI --> SaleService : depends on
+UIGUI --> ReturnService : depends on
+
+SaleService --> InventoryService : depends on
+SaleService --> Sale : creates
+SaleService --> SaleItem : creates
+
+ReturnService --> InventoryService : depends on
+ReturnService --> SaleService : depends on
+ReturnService --> ReturnTransaction : creates
+ReturnService --> SaleItem : creates
+
+InventoryService --> Product : manages
+
+Sale --> SaleItem : contains
+ReturnTransaction --> SaleItem : contains
+SaleItem --> Product : references
+
+Main --> UI : launches
+
+note bottom of Service
+  <b>Service Layer</b>
+  Handles all business rules and processes
+  Coordinates domain models to complete business operations
+end note
+
+note bottom of Domain
+  <b>Domain Layer</b>
+  Contains all business entities
+  Expresses business concepts and rules
+end note
+
+note bottom of UI
+  <b>UI Layer</b>
+  Responsible for user interaction
+  Calls service layer to complete business operations
+end note
+
+@enduml

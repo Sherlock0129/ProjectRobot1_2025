@@ -1,0 +1,130 @@
+@startuml OO Design Interaction Diagram - Process Sale
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam ParticipantPadding 20
+
+title Object-Oriented Design - Interaction Diagram for Process Sale
+
+participant ":POSUI" as UI
+participant ":SaleService" as SaleService
+participant ":InventoryService" as InventoryService
+participant "sale:Sale" as Sale
+participant "item:SaleItem" as SaleItem
+participant "product:Product" as Product
+
+== Initialize System ==
+UI -> SaleService: new SaleService(inventoryService)
+activate SaleService
+SaleService -> InventoryService: save reference
+activate InventoryService
+InventoryService --> SaleService: reference saved
+deactivate InventoryService
+SaleService --> UI: service object
+deactivate SaleService
+
+== Create Sale ==
+UI -> SaleService: create_sale()
+activate SaleService
+SaleService -> Sale: new Sale()
+activate Sale
+Sale -> Sale: _generate_id()
+Sale -> Sale: initialize items, transaction_time, is_completed
+Sale --> SaleService: sale object
+deactivate Sale
+SaleService --> UI: return sale object
+deactivate SaleService
+
+== Add Items to Sale ==
+loop Add multiple items
+  UI -> SaleService: add_item_to_sale(sale, "P001", 5)
+  activate SaleService
+  
+  SaleService -> InventoryService: get_product("P001")
+  activate InventoryService
+  InventoryService -> InventoryService: products.get("P001")
+  InventoryService --> SaleService: product object
+  deactivate InventoryService
+  
+  alt Product exists
+    SaleService -> Product: reduce_stock(5)
+    activate Product
+    Product -> Product: check stock >= quantity
+    Product -> Product: stock -= quantity
+    Product --> SaleService: true (success)
+    deactivate Product
+    
+    SaleService -> SaleItem: new SaleItem(product, 5)
+    activate SaleItem
+    SaleItem -> SaleItem: initialize product and quantity
+    SaleItem --> SaleService: item object
+    deactivate SaleItem
+    
+    SaleService -> Sale: add_item(item)
+    activate Sale
+    Sale -> Sale: items.append(item)
+    Sale --> SaleService: completed
+    deactivate Sale
+    
+    SaleService --> UI: true (success)
+  else Product not found or stock insufficient
+    SaleService --> UI: false (failure)
+  end
+  deactivate SaleService
+end
+
+== Display Sale Information ==
+UI -> Sale: get_total_amount()
+activate Sale
+Sale -> Sale: iterate items list
+loop For each item
+  Sale -> SaleItem: get_subtotal()
+  activate SaleItem
+  SaleItem -> Product: price
+  activate Product
+  Product --> SaleItem: return price
+  deactivate Product
+  SaleItem -> SaleItem: price * quantity
+  SaleItem --> Sale: return subtotal
+  deactivate SaleItem
+end
+Sale -> Sale: sum(all subtotals)
+Sale --> UI: return total
+deactivate Sale
+
+== Complete Sale ==
+UI -> SaleService: complete_sale(sale, "Cash", 100.0)
+activate SaleService
+
+SaleService -> Sale: get_total_amount()
+activate Sale
+Sale -> Sale: calculate total amount
+Sale --> SaleService: return total
+deactivate Sale
+
+alt Payment amount sufficient
+  SaleService -> Sale: complete("Cash", 100.0)
+  activate Sale
+  Sale -> Sale: payment_method = "Cash"
+  Sale -> Sale: payment_amount = 100.0
+  Sale -> Sale: is_completed = True
+  Sale --> SaleService: completed
+  deactivate Sale
+  
+  SaleService -> SaleService: sales_history.append(sale)
+  SaleService --> UI: true (success)
+else Payment amount insufficient
+  SaleService --> UI: false (failure)
+end
+deactivate SaleService
+
+== Calculate Change ==
+UI -> Sale: get_change()
+activate Sale
+Sale -> Sale: check is_completed
+Sale -> Sale: payment_amount - get_total_amount()
+Sale --> UI: return change
+deactivate Sale
+
+@enduml

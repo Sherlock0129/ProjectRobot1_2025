@@ -1,0 +1,100 @@
+@startuml System Sequence Diagram - Process Sale
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title System Sequence Diagram - Process Sale
+
+actor "Cashier" as Cashier
+boundary "POS System" as System
+control "SaleService" as SaleService
+control "InventoryService" as InventoryService
+entity "Sale" as Sale
+entity "Product" as Product
+
+== Create Sale ==
+Cashier -> System: select "Process Sale"
+activate System
+System -> SaleService: create_sale()
+activate SaleService
+SaleService -> Sale: new Sale()
+activate Sale
+Sale --> SaleService: sale object
+deactivate Sale
+SaleService --> System: return sale object
+deactivate SaleService
+System --> Cashier: display "Sale created"
+
+== Add Items to Sale ==
+loop Add items
+  Cashier -> System: enter product_id and quantity
+  System -> SaleService: add_item_to_sale(sale, product_id, quantity)
+  activate SaleService
+  SaleService -> InventoryService: get_product(product_id)
+  activate InventoryService
+  InventoryService -> Product: find product
+  activate Product
+  Product --> InventoryService: return Product object
+  deactivate Product
+  InventoryService --> SaleService: return Product object
+  deactivate InventoryService
+  
+  alt Product exists and stock sufficient
+    SaleService -> Product: reduce_stock(quantity)
+    activate Product
+    Product --> SaleService: success
+    deactivate Product
+    SaleService -> Sale: add_item(SaleItem)
+    activate Sale
+    Sale --> SaleService: success
+    deactivate Sale
+    SaleService --> System: return true
+    deactivate SaleService
+    System --> Cashier: display "Item added"
+  else Product not found or stock insufficient
+    SaleService --> System: return false
+    deactivate SaleService
+    System --> Cashier: display error message
+  end
+end
+
+== Complete Sale ==
+Cashier -> System: select "Complete Sale"
+System -> Sale: get_total()
+activate Sale
+Sale --> System: return total amount
+deactivate Sale
+System --> Cashier: display total amount
+
+Cashier -> System: enter payment_method and payment_amount
+System -> SaleService: complete_sale(sale, payment_method, payment_amount)
+activate SaleService
+SaleService -> Sale: get_total()
+activate Sale
+Sale --> SaleService: return total amount
+deactivate Sale
+
+alt Payment amount sufficient
+  SaleService -> Sale: complete_sale(payment_method, payment_amount)
+  activate Sale
+  Sale --> SaleService: completed
+  deactivate Sale
+  SaleService -> SaleService: save to sales_history
+  SaleService --> System: return true
+  deactivate SaleService
+  System -> Sale: get_change()
+  activate Sale
+  Sale --> System: return change
+  deactivate Sale
+  System --> Cashier: display "Sale completed" and change
+else Payment amount insufficient
+  SaleService --> System: return false
+  deactivate SaleService
+  System --> Cashier: display "Payment amount insufficient"
+end
+
+deactivate System
+
+@enduml
+

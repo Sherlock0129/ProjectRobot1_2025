@@ -1,0 +1,140 @@
+@startuml OO Design Interaction Diagram - Handle Returns
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam ParticipantPadding 20
+
+title Object-Oriented Design - Interaction Diagram for Handle Returns
+
+participant ":POSUI" as UI
+participant ":ReturnService" as ReturnService
+participant ":InventoryService" as InventoryService
+participant ":SaleService" as SaleService
+participant "returnTrans:ReturnTransaction" as ReturnTransaction
+participant "item:SaleItem" as SaleItem
+participant "product:Product" as Product
+
+== Initialize System ==
+UI -> ReturnService: new ReturnService(inventoryService, saleService)
+activate ReturnService
+ReturnService -> InventoryService: save reference
+activate InventoryService
+InventoryService --> ReturnService: reference saved
+deactivate InventoryService
+ReturnService -> SaleService: save reference
+activate SaleService
+SaleService --> ReturnService: reference saved
+deactivate SaleService
+ReturnService --> UI: service object
+deactivate ReturnService
+
+== Create Return Transaction ==
+UI -> ReturnService: create_return("SALE-001")
+activate ReturnService
+ReturnService -> ReturnTransaction: new ReturnTransaction(original_sale_id="SALE-001")
+activate ReturnTransaction
+ReturnTransaction -> ReturnTransaction: _generate_id()
+ReturnTransaction -> ReturnTransaction: initialize items, return_time, is_completed
+ReturnTransaction -> ReturnTransaction: original_sale_id = "SALE-001"
+ReturnTransaction --> ReturnService: returnTrans object
+deactivate ReturnTransaction
+ReturnService --> UI: return returnTrans object
+deactivate ReturnService
+
+== Add Items to Return Transaction ==
+loop Add multiple return items
+  UI -> ReturnService: add_item_to_return(returnTrans, "P001", 3)
+  activate ReturnService
+  
+  ReturnService -> InventoryService: get_product("P001")
+  activate InventoryService
+  InventoryService -> InventoryService: products.get("P001")
+  InventoryService --> ReturnService: product object
+  deactivate InventoryService
+  
+  alt Product exists
+    ReturnService -> SaleItem: new SaleItem(product, 3)
+    activate SaleItem
+    SaleItem -> SaleItem: initialize product and quantity
+    SaleItem --> ReturnService: item object
+    deactivate SaleItem
+    
+    ReturnService -> ReturnTransaction: add_item(item)
+    activate ReturnTransaction
+    ReturnTransaction -> ReturnTransaction: items.append(item)
+    ReturnTransaction --> ReturnService: completed
+    deactivate ReturnTransaction
+    
+    ReturnService --> UI: true (success)
+  else Product not found
+    ReturnService --> UI: false (failure)
+  end
+  deactivate ReturnService
+end
+
+== Display Return Transaction Information ==
+UI -> ReturnTransaction: get_total_amount()
+activate ReturnTransaction
+ReturnTransaction -> ReturnTransaction: iterate items list
+loop For each item
+  ReturnTransaction -> SaleItem: get_subtotal()
+  activate SaleItem
+  SaleItem -> Product: price
+  activate Product
+  Product --> SaleItem: return price
+  deactivate Product
+  SaleItem -> SaleItem: price * quantity
+  SaleItem --> ReturnTransaction: return subtotal
+  deactivate SaleItem
+end
+ReturnTransaction -> ReturnTransaction: sum(all subtotals)
+ReturnTransaction --> UI: return total_refund
+deactivate ReturnTransaction
+
+== Complete Return ==
+UI -> ReturnService: complete_return(returnTrans)
+activate ReturnService
+
+ReturnService -> ReturnTransaction: check if items is empty
+activate ReturnTransaction
+ReturnTransaction --> ReturnService: items list
+deactivate ReturnTransaction
+
+alt Return transaction not empty
+  loop Restore stock for each item
+    ReturnService -> ReturnTransaction: get items list
+    activate ReturnTransaction
+    ReturnTransaction --> ReturnService: items list
+    deactivate ReturnTransaction
+    
+    ReturnService -> SaleItem: get product and quantity
+    activate SaleItem
+    SaleItem --> ReturnService: product, quantity
+    deactivate SaleItem
+    
+    ReturnService -> InventoryService: restore_stock("P001", 3)
+    activate InventoryService
+    InventoryService -> Product: increase_stock(3)
+    activate Product
+    Product -> Product: stock += quantity
+    Product --> InventoryService: completed
+    deactivate Product
+    InventoryService --> ReturnService: completed
+    deactivate InventoryService
+  end
+  
+  ReturnService -> ReturnTransaction: complete()
+  activate ReturnTransaction
+  ReturnTransaction -> ReturnTransaction: is_completed = True
+  ReturnTransaction --> ReturnService: completed
+  deactivate ReturnTransaction
+  
+  ReturnService -> ReturnService: return_history.append(returnTrans)
+  ReturnService --> UI: true (success)
+else Return transaction empty
+  ReturnService --> UI: false (failure)
+end
+deactivate ReturnService
+
+@enduml

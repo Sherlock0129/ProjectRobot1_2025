@@ -1,0 +1,122 @@
+@startuml Domain Model Class Diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam backgroundColor #FFFFFF
+
+title POS System Domain Model - Class Diagram
+
+package "Domain Layer" {
+  
+  abstract class Transaction {
+    - transaction_id : String
+    - items : List<SaleItem>
+    - transaction_time : DateTime
+    - is_completed : Boolean
+    + __init__(transaction_id: String = None)
+    + add_item(item: SaleItem) : void
+    + get_item_count() : int
+    + is_empty() : Boolean
+    + {abstract} _generate_id() : String
+    + {abstract} get_total_amount() : float
+    + {abstract} complete(*args, **kwargs) : void
+    + {abstract} get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class Sale {
+    - payment_method : String
+    - payment_amount : float
+    - sale_id : String
+    + __init__(sale_id: String = None)
+    + _generate_id() : String
+    + get_total_amount() : float
+    + get_total() : float
+    + complete(payment_method: String, payment_amount: float) : void
+    + complete_sale(payment_method: String, payment_amount: float) : void
+    + get_change() : float
+    + get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class ReturnTransaction {
+    - original_sale_id : String
+    - return_id : String
+    + __init__(return_id: String = None, original_sale_id: String = None)
+    + _generate_id() : String
+    + get_total_amount() : float
+    + get_total_refund() : float
+    + complete() : void
+    + complete_return() : void
+    + get_transaction_type() : String
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class Product {
+    - product_id : String
+    - name : String
+    - price : float
+    - stock : int
+    + __init__(product_id: String, name: String, price: float, stock: int = 0)
+    + reduce_stock(quantity: int) : Boolean
+    + increase_stock(quantity: int) : void
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  class SaleItem {
+    - product : Product
+    - quantity : int
+    + __init__(product: Product, quantity: int)
+    + get_subtotal() : float
+    + __str__() : String
+    + __repr__() : String
+  }
+  
+  ' Inheritance relationships
+  Transaction <|-- Sale
+  Transaction <|-- ReturnTransaction
+  
+  ' Association relationships
+  Transaction "1" *-- "0..*" SaleItem : contains
+  SaleItem "1" --> "1" Product : references
+  
+  ' Dependency relationship
+  Sale ..> SaleItem : creates
+  
+  note right of Transaction
+    <b>Abstract Base Class</b>
+    Defines common interface and
+    behavior for all transaction types
+    Demonstrates inheritance and polymorphism
+  end note
+  
+  note right of Sale
+    Sale Transaction Class
+    Inherits from Transaction
+    Contains payment information
+  end note
+  
+  note right of ReturnTransaction
+    Return Transaction Class
+    Inherits from Transaction
+    Can link to original sale
+  end note
+  
+  note right of Product
+    Product Entity Class
+    Encapsulates product information
+    and stock management
+  end note
+  
+  note right of SaleItem
+    Sale Item Entity Class
+    Represents a product item
+    in a sale with quantity
+  end note
+}
+
+@enduml
