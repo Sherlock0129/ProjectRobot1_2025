@@ -60,7 +60,7 @@
 \date{\today}
 
 \begin{document}
-\maketitle
+% \maketitle (removed per requirement to drop first page)
 \tableofcontents
 \newpage
 
@@ -80,7 +80,7 @@ Core objectives were:
 % ----------------------------------------------------------------
 \section{System Overview}
 \subsection{Use Case Model}
-Figure~\ref{fig:use-case} shows the Use Case Diagram for the POS system. The two primary use cases required by the assignment are \textbf{Process Sale} and \textbf{Handle Returns}.
+Figure1 shows the Use Case Diagram for the POS system. The two primary use cases required by the assignment are \textbf{Process Sale} and \textbf{Handle Returns}.
 
 \begin{figure}[H]
   \centering
@@ -90,7 +90,7 @@ Figure~\ref{fig:use-case} shows the Use Case Diagram for the POS system. The two
 \end{figure}
 
 \subsection{Architecture}
-The system adopts a three-layer logical architecture. Figure~\ref{fig:architecture} presents the package/module organisation used in implementation, which helps separate UI, service logic, and domain model concerns.
+The system adopts a three-layer logical architecture. Figure2 presents the package/module organisation used in implementation, which helps separate UI, service logic, and domain model concerns.
 
 \begin{figure}[H]
   \centering
@@ -100,7 +100,7 @@ The system adopts a three-layer logical architecture. Figure~\ref{fig:architectu
 \end{figure}
 
 \subsection{Domain Model}
-Key business entities appear in the domain layer (Figure~\ref{fig:domain-model}). They are implemented in the \texttt{domain/} package and form the backbone of the application logic.
+Key business entities appear in the domain layer (Figure3). They are implemented in the \texttt{domain/} package and form the backbone of the application logic.
 
 \begin{figure}[H]
   \centering
@@ -165,16 +165,14 @@ Rather than embedding the entire code-base, representative excerpts are included
 
 % ----------------------------------------------------------------
 \section{Git Command History}
-Team collaboration was fully tracked in GitHub. A condensed commit log covering all branches is embedded below (generated on \today):
+Team collaboration was fully tracked in GitHub. A condensed commit log covering all branches is embedded below.
 
-\begin{verbatim}
-% Run in repo root:
-%   git log --graph --oneline --all --decorate --since=2025-01-01 > docs/report/git_history.txt
-\end{verbatim}
-
-\vspace{0.5em}
-% Uncomment when file is present
-%\verbatiminput{git_history.txt}
+% 添加截图
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{githistory.png}
+  \caption{GitHub Commit History Overview}
+\end{figure}
 
 % ----------------------------------------------------------------
 \section{Screenshots}
@@ -220,6 +218,22 @@ Key take-aways include:
   \item Collective code ownership was facilitated by strict branch discipline and frequent merges, resulting in minimal integration conflicts.
 \end{itemize}
 Future work may integrate persistent storage, extend reporting capabilities and introduce fine-grained user authentication.
+
+% ----------------------------------------------------------------
+\appendix
+\section{GitHub Repository}
+The complete source code, issue tracker, and pull-request history can be accessed on GitHub:
+
+\begin{center}
+\url{https://github.com/Sherlock0129/ProjectRobot1_2025}
+\end{center}
+
+\section{Demonstration Video}
+A short walkthrough video showcasing the main features and workflows of the POS system is available at:
+
+\begin{center}
+\href{https://youtu.be/your-video-id}{https://youtu.be/your-video-id}
+\end{center}
 
 \end{document}
 

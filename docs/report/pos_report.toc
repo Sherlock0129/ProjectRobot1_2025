@@ -10,5 +10,7 @@
 \contentsline {subsection}{\numberline {4.1}Domain Layer}{7}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Service Layer}{11}{subsection.4.2}%
 \contentsline {section}{\numberline {5}Git Command History}{15}{section.5}%
-\contentsline {section}{\numberline {6}Screenshots}{15}{section.6}%
-\contentsline {section}{\numberline {7}Conclusion}{19}{section.7}%
+\contentsline {section}{\numberline {6}Screenshots}{16}{section.6}%
+\contentsline {section}{\numberline {7}Conclusion}{20}{section.7}%
+\contentsline {section}{\numberline {A}GitHub Repository}{20}{appendix.A}%
+\contentsline {section}{\numberline {B}Demonstration Video}{20}{appendix.B}%
