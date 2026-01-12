@@ -119,7 +119,19 @@ class POSUI:
             print(f"  - {item}")
         print(f"Total: ${self.current_sale.get_total():.2f}")
         
-        payment_method = input("\nEnter Payment Method (Cash/Card/Mobile): ").strip() or "Cash"
+        valid_methods = {"cash", "card", "mobile"}
+
+        while True:
+            payment_method = input("\nEnter Payment Method (cash/card/mobile): ").strip()
+
+            if payment_method == "":
+                payment_method = "cash"
+                break
+
+            if payment_method in valid_methods:
+                break
+            else:
+                print("Invalid payment method")
         try:
             payment_amount = float(input("Enter Payment Amount: ").strip())
         except ValueError:
